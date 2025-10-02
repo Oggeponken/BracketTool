@@ -1,3 +1,0 @@
-bracket_type=single_elimination
-team_size=2
-names=affe,daffe,laffe,naffe,kartarina,joasf

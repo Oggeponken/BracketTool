@@ -1,0 +1,4 @@
+bracket_type=single_elimination
+team_size=1
+group_size=8
+names=Shahrooz,Oskar,Tobias 1, Tobias 2, Albin, Clara, Sara, Anton, Yasin, Robert, Yunes, Kungen

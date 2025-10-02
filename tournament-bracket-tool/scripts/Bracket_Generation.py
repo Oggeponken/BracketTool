@@ -1,12 +1,15 @@
 # main.py
 
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 import os
 from brackets.single_elimination import SingleElimination
 from brackets.double_elimination import DoubleElimination
+from brackets.group_play import GroupPlay
 from brackets.round_robin import RoundRobin
 from settings_creator import create_settings_file, load_settings
-
-SETTINGS_PATH = 'tournament-bracket-tool/settings.txt'
+#import pandas as pd
+SETTINGS_PATH = 'tournament-bracket-tool/rounds/settings.txt'
 
 def main():
     print("Welcome to the Tournament Bracket Tool!")
@@ -33,11 +36,16 @@ def main():
         bracket = DoubleElimination(names, team_size=team_size)
     elif bracket_type == "round_robin":
         bracket = RoundRobin(names, team_size=team_size)
+    elif bracket_type == "group_play":
+        group_size = int(settings.get("group_size", "8"))
+        seed = settings.get("seed", "random")
+        bracket = GroupPlay(names, seed=seed, team_size=team_size, group_size=group_size)
     else:
         print("Invalid bracket type in settings.txt.")
         return
 
     bracket.display_bracket()
+    bracket.generate_bracket()
 
 if __name__ == "__main__":
     main()
