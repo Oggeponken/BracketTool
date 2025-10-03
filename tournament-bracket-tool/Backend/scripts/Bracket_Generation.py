@@ -1,7 +1,7 @@
 # main.py
 
 import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'src')))
 import os
 from brackets.single_elimination import SingleElimination
 from brackets.double_elimination import DoubleElimination
@@ -9,7 +9,7 @@ from brackets.group_play import GroupPlay
 from brackets.round_robin import RoundRobin
 from settings_creator import create_settings_file, load_settings
 #import pandas as pd
-SETTINGS_PATH = 'tournament-bracket-tool/rounds/settings.txt'
+SETTINGS_PATH = 'tournament-bracket-tool/Backend/rounds/settings.txt'
 
 def main():
     print("Welcome to the Tournament Bracket Tool!")

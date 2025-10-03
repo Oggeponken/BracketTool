@@ -1,0 +1,4 @@
+bracket_type=group_play
+team_size=2
+group_size=4
+names=Shahrooz,Oskar,Tobias 1, Tobias 2, Albin, Clara, Sara, Anton, Yasin, Robert, Yunes, Kungen, Roberto Carlos, Alfred, Emil, Freddan

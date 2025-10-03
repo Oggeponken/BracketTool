@@ -29,35 +29,54 @@ class SingleElimination:
     def generate_bracket(self):
         participants = self.participants.copy()
         num_players = len(participants)
-        # Find next power of 2 >= num_players
-        next_pow2 = 1
-        while next_pow2 < num_players:
-            next_pow2 *= 2
-        num_rounds = int(math.log2(next_pow2))
-        # Calculate byes (teams that start in round 2)
-        num_byes = next_pow2 - num_players
-        # Assign byes: first num_byes teams get a bye to round 2
-        round1_participants = participants[num_byes:]
-        byes = participants[:num_byes]
         rounds = []
-        # Round 1
+
+        # Find next lower power of two
+        def next_lower_power_of_two(n):
+            return 2 ** (n.bit_length() - 1)
+
+        # Calculate byes and first round matches
+        pow2 = next_lower_power_of_two(num_players)
+        num_byes = pow2 * 2 - num_players if num_players > pow2 else 0
+        num_first_round_matches = num_players - pow2
+
+        # First round: teams without byes
         round1 = []
-        for i in range(0, len(round1_participants) - len(round1_participants) % 2, 2):
-            round1.append((round1_participants[i], round1_participants[i+1]))
+        used = 0
+        for i in range(num_first_round_matches):
+            round1.append((participants[used], participants[used+1]))
+            used += 2
         rounds.append(round1)
-        # Prepare for next rounds
-        prev_round_winners = [f"Winner of match {i+1}" for i in range(len(round1))] + byes
-        for r in range(2, num_rounds+1):
-            matches = []
-            for i in range(0, len(prev_round_winners) - len(prev_round_winners) % 2, 2):
-                matches.append((prev_round_winners[i], prev_round_winners[i+1]))
-            # If odd, last team gets a bye to next round
-            if len(prev_round_winners) % 2 == 1:
-                matches.append((prev_round_winners[-1], f"Winner of round {r} match 1"))
-            rounds.append(matches)
-            prev_round_winners = [f"Winner of round {r} match {i+1}" for i in range(len(matches))]
+
+        # Second round: byes + winners from round 1
+        round2 = []
+        # Add byes
+        byes = participants[used:]
+        # Winners from round 1 are placeholders
+        winners = [f"" for i in range(num_first_round_matches)]
+        round2_teams = byes + winners
+        # Pair up for round 2
+        for i in range(0, len(round2_teams), 2):
+            t1 = round2_teams[i] if i < len(round2_teams) else ""
+            t2 = round2_teams[i+1] if i+1 < len(round2_teams) else ""
+            round2.append((t1, t2))
+        rounds.append(round2)
+
+        # Continue rounds until final
+        current_teams = [f"" for i in range(len(round2))]
+        round_num = 3
+        while len(current_teams) > 1:
+            next_round = []
+            for i in range(0, len(current_teams), 2):
+                t1 = current_teams[i] if i < len(current_teams) else ""
+                t2 = current_teams[i+1] if i+1 < len(current_teams) else ""
+                next_round.append((t1, t2))
+            rounds.append(next_round)
+            current_teams = [f"" for i in range(len(next_round))]
+            round_num += 1
+
         # Write to CSV
-        csv_path = 'tournament-bracket-tool/rounds/single_elimination_bracket.csv'
+        csv_path = 'tournament-bracket-tool/Backend/rounds/single_elimination_bracket.csv'
         with open(csv_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['Round', 'Match', 'Team 1', 'Team 2', 'Outcome'])

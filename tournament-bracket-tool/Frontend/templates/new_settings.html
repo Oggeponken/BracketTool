@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Settings</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create New Bracket Settings</h1>
+        <form id="settingsForm">
+            <label for="bracketType">Bracket Type:</label>
+            <select id="bracketType" name="bracketType">
+                <option value="single_elimination">Single Elimination</option>
+                <option value="group_play">Group Play</option>
+                <option value="double_elimination">Double Elimination</option>
+                <option value="round_robin">Round Robin</option>
+            </select><br><br>
+            <label for="teamSize">Team Size:</label>
+            <input type="number" id="teamSize" name="teamSize" min="1" value="1"><br><br>
+            <label for="groupSize">Group Size:</label>
+            <input type="number" id="groupSize" name="groupSize" min="1" value="4"><br><br>
+            <label for="players">Players:</label>
+            <ul id="playersList"></ul>
+            <input type="text" id="playerInput" placeholder="Enter player name">
+            <button type="button" id="addPlayerBtn">Add Player</button><br><br>
+            <button type="button" id="saveBtn">Save & Generate Bracket</button>
+        </form>
+    </div>
+    <script>
+    const players = [];
+    document.getElementById('addPlayerBtn').onclick = function() {
+        const name = document.getElementById('playerInput').value.trim();
+        if (name) {
+            players.push(name);
+            updatePlayersList();
+            document.getElementById('playerInput').value = '';
+        }
+    };
+    function updatePlayersList() {
+        const ul = document.getElementById('playersList');
+        ul.innerHTML = '';
+        players.forEach((p, i) => {
+            const li = document.createElement('li');
+            li.textContent = p;
+            ul.appendChild(li);
+        });
+    }
+    document.getElementById('saveBtn').onclick = async function() {
+        const bracketType = document.getElementById('bracketType').value;
+        const teamSize = document.getElementById('teamSize').value;
+        const groupSize = document.getElementById('groupSize').value;
+        // Send settings to backend to save settings.txt and generate bracket
+        const response = await fetch('/save_settings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                bracketType,
+                teamSize,
+                groupSize,
+                players
+            })
+        });
+        if (response.ok) {
+            window.location.href = '/view_bracket';
+        } else {
+            alert('Error saving settings or generating bracket.');
+        }
+    };
+    </script>
+</body>
+</html>

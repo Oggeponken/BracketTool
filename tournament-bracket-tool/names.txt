@@ -1,8 +1,0 @@
-Participant 1
-Participant 2
-Participant 3
-Participant 4s
-Participant 5
-Participant 6
-Participant 7
-Participant 8
