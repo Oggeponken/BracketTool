@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <title>Bracket Visualizer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bracket.css') }}">
 </head>
 <body>
     <div class="background-blur"></div>
@@ -11,6 +12,6 @@
         <h1>Tournament Bracket</h1>
         <div id="bracket"></div>
     </div>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='visualization/main.js') }}"></script>
 </body>
 </html>

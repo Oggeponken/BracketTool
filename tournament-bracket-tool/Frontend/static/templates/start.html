@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Bracket Tool - Start</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='start.css') }}">
+</head>
+<body>
+    <div class="background-blur"></div>
+    <div class="bracket-overlay">
+        <div class="container start-container">
+            <h1>Volleyboll Bracket Generator</h1>
+            <h3 >By oggelito</h3>
+            <h2 class="start-h2">Create or Load a Bracket</h2>
+            <form id="startForm" class="start-form start-form-cols">
+                <div class="form-group radio-group">
+                    <label class="radio-label">
+                        <input type="radio" class="custom-radio" name="startOption" value="csv" checked>
+                        <span class="radio-text">Load bracket from file</span>
+                    </label>
+                </div>
+               <!-- <div class="form-group radio-group">
+                    <label class="radio-label">
+                        <input type="radio" class="custom-radio" name="startOption" value="settings">
+                        <span class="radio-text">Load from existing settings.txt file</span>
+                    </label>
+                </div> -->
+                <div class="form-group radio-group">
+                    <label class="radio-label">
+                        <input type="radio" class="custom-radio" name="startOption" value="new">
+                        <span class="radio-text">Create new bracket</span>
+                    </label>
+                </div>
+                <button type="button" id="continueBtn" class="start-btn">Continue</button>
+            </form>
+        </div>
+    </div>
+    <script>
+    document.getElementById('continueBtn').onclick = async function() {
+        const option = document.querySelector('input[name="startOption"]:checked').value;
+        if (option === 'new') {
+            window.location.href = '/new_settings';
+        } else if (option === 'csv') {
+            // Tell backend to load the .csv file (assume default path)
+            const response = await fetch('/load_csv', { method: 'POST' });
+            if (response.ok) {
+                window.location.href = '/view_bracket';
+            } else {
+                alert('Failed to load CSV file.');
+            }
+        } else if (option === 'settings') {
+            window.location.href = '/load_settings';
+        }
+    };
+    </script>
+</body>
+</html>

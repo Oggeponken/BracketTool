@@ -1,4 +1,4 @@
 bracket_type=single_elimination
 team_size=1
 group_size=4
-names=sadasda,affe,sadasd,zzzz,aaaa,gq3afa,awawqwr,hdfhd
+names=Tobias 1,Tobias 2,Clara,Oskar,Yasin,Shahrooz,Sarah,Oliver,Albin,Ren,Amanda (clara vill ej),Alfred

@@ -11,6 +11,7 @@ class SingleElimination:
   
     # Team generation and seeding
     def seed_teams(self):
+        print("hi, inside seed_teams")
         if self.seed == "random":
             from seeding.random_seed import random_seed
             print(self.team_size)
@@ -24,23 +25,23 @@ class SingleElimination:
         matchups = []
         for match in self.bracket:
             matchups.append(f"{match[0]} vs {match[1]}")
+        print("inside generate_matchups")
         return matchups
 
     def generate_bracket(self):
+        # Always seed teams before generating bracket
+        self.seed_teams()
         participants = self.participants.copy()
         num_players = len(participants)
         rounds = []
 
-        # Find next lower power of two
         def next_lower_power_of_two(n):
             return 2 ** (n.bit_length() - 1)
 
-        # Calculate byes and first round matches
         pow2 = next_lower_power_of_two(num_players)
         num_byes = pow2 * 2 - num_players if num_players > pow2 else 0
         num_first_round_matches = num_players - pow2
 
-        # First round: teams without byes
         round1 = []
         used = 0
         for i in range(num_first_round_matches):
@@ -48,21 +49,16 @@ class SingleElimination:
             used += 2
         rounds.append(round1)
 
-        # Second round: byes + winners from round 1
         round2 = []
-        # Add byes
         byes = participants[used:]
-        # Winners from round 1 are placeholders
         winners = [f"" for i in range(num_first_round_matches)]
         round2_teams = byes + winners
-        # Pair up for round 2
         for i in range(0, len(round2_teams), 2):
             t1 = round2_teams[i] if i < len(round2_teams) else ""
             t2 = round2_teams[i+1] if i+1 < len(round2_teams) else ""
             round2.append((t1, t2))
         rounds.append(round2)
 
-        # Continue rounds until final
         current_teams = [f"" for i in range(len(round2))]
         round_num = 3
         while len(current_teams) > 1:
@@ -75,7 +71,6 @@ class SingleElimination:
             current_teams = [f"" for i in range(len(next_round))]
             round_num += 1
 
-        # Write to CSV
         csv_path = 'tournament-bracket-tool/Backend/rounds/single_elimination_bracket.csv'
         with open(csv_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)

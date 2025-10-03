@@ -20,7 +20,7 @@ def main():
     names = [n.strip() for n in settings.get("names", "").split(",") if n.strip()]
     bracket_type = settings.get("bracket_type", "single_elimination")
     team_size = int(settings.get("team_size", "1"))
-
+    print(bracket_type)
     if not names:
         print("No names found in settings.txt.")
         return
@@ -28,6 +28,7 @@ def main():
     # Bracket selection
     if bracket_type == "single_elimination":
         bracket = SingleElimination(names, seed="random", team_size=team_size)
+        print("inside single elimination")
     elif bracket_type == "double_elimination":
         bracket = DoubleElimination(names, team_size=team_size)
     elif bracket_type == "round_robin":
@@ -35,6 +36,7 @@ def main():
     elif bracket_type == "group_play":
         group_size = int(settings.get("group_size", "8"))
         seed = settings.get("seed", "random")
+        
         bracket = GroupPlay(names, seed=seed, team_size=team_size, group_size=group_size)
     else:
         print("Invalid bracket type in settings.txt.")
