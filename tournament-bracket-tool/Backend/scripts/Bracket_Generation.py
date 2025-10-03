@@ -12,13 +12,9 @@ from settings_creator import create_settings_file, load_settings
 SETTINGS_PATH = 'tournament-bracket-tool/Backend/rounds/settings.txt'
 
 def main():
-    print("Welcome to the Tournament Bracket Tool!")
-    print("1. Use existing settings.txt")
-    print("2. Create new settings.txt")
-    choice = input("Enter your choice: ")
-
-    if choice == "2" or not os.path.exists(SETTINGS_PATH):
-        create_settings_file(SETTINGS_PATH)
+    if not os.path.exists(SETTINGS_PATH):
+        print("settings.txt not found.")
+        return
 
     settings = load_settings(SETTINGS_PATH)
     names = [n.strip() for n in settings.get("names", "").split(",") if n.strip()]
@@ -44,7 +40,6 @@ def main():
         print("Invalid bracket type in settings.txt.")
         return
 
-    bracket.display_bracket()
     bracket.generate_bracket()
 
 if __name__ == "__main__":
