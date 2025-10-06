@@ -36,26 +36,30 @@ class SingleElimination:
         rounds = []
 
         def next_lower_power_of_two(n):
-            return 2 ** (n.bit_length() - 1)
+            return abs (2 ** (n.bit_length()-1) - n)
+            
 
         pow2 = next_lower_power_of_two(num_players)
+        print(participants)
         num_byes = pow2 * 2 - num_players if num_players > pow2 else 0
-        num_first_round_matches = num_players - pow2
+        num_first_round_matches = int((num_players - pow2)/2)
 
+        # initial matchups
         round1 = []
         used = 0
         for i in range(num_first_round_matches):
             round1.append((participants[used], participants[used+1]))
             used += 2
+          
         rounds.append(round1)
 
         round2 = []
-        byes = participants[used:]
-        winners = [f"" for i in range(num_first_round_matches)]
-        round2_teams = byes + winners
+        byes = participants[used:]  # the unused participants
+        winners = [f"" for i in range(int(num_first_round_matches))] # empty spaces for winners
+        round2_teams = byes + winners     
         for i in range(0, len(round2_teams), 2):
-            t1 = round2_teams[i] if i < len(round2_teams) else ""
-            t2 = round2_teams[i+1] if i+1 < len(round2_teams) else ""
+            t1 = byes[i] if i < len(byes) else "" # put unused team in match of round 2 else just empty winner
+            t2 = "" # match with unkown winner from round 1
             round2.append((t1, t2))
         rounds.append(round2)
 

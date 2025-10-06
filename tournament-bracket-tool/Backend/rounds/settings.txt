@@ -1,4 +1,4 @@
 bracket_type=single_elimination
-team_size=1
+team_size=2
 group_size=4
-names=Tobias 1,Tobias 2,Clara,Oskar,Yasin,Shahrooz,Sarah,Oliver,Albin,Ren,Amanda (clara vill ej),Alfred
+names=Alfred,Albin,Oskar,Sven,Thomas,Jonathan,Clara,Oliver,Olloniver,Amadeus,God Emperor
