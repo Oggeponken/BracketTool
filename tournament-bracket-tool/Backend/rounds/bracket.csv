@@ -1,0 +1,8 @@
+Type,Round,Match,Team 1,Team 2,Next Match
+single_elimination,1,1,"Toresten, Josef",Oskar,1
+single_elimination,1,2,"Amadeus, Nellie","Albin, God Emperor",1
+single_elimination,1,3,"Olloniver, Lalla","Oliver, Alfred",2
+single_elimination,1,4,"Thomas, Jonathan","Clara, Sven",2
+single_elimination,2,1,,,1
+single_elimination,2,2,,,1
+single_elimination,3,1,,,

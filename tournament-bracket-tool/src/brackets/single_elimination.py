@@ -34,30 +34,30 @@ class SingleElimination:
         participants = self.participants.copy()
         num_players = len(participants)
         rounds = []
+        next_match = []
 
         def next_lower_power_of_two(n):
             return abs (2 ** (n.bit_length()-1) - n)
-            
-
         pow2 = next_lower_power_of_two(num_players)
-        print(participants)
+
+
         num_byes = pow2 * 2 - num_players if num_players > pow2 else 0
         num_first_round_matches = int((num_players - pow2)/2)
 
         # initial matchups
         round1 = []
+        
         used = 0
         for i in range(num_first_round_matches):
             round1.append((participants[used], participants[used+1]))
             used += 2
-          
         rounds.append(round1)
 
         round2 = []
         byes = participants[used:]  # the unused participants
         winners = [f"" for i in range(int(num_first_round_matches))] # empty spaces for winners
         round2_teams = byes + winners     
-        for i in range(0, len(round2_teams), 2):
+        for i in range(0, len(round2_teams)-1, 2):
             t1 = byes[i] if i < len(byes) else "" # put unused team in match of round 2 else just empty winner
             t2 = "" # match with unkown winner from round 1
             round2.append((t1, t2))
@@ -75,13 +75,48 @@ class SingleElimination:
             current_teams = [f"" for i in range(len(next_round))]
             round_num += 1
 
-        csv_path = 'tournament-bracket-tool/Backend/rounds/single_elimination_bracket.csv'
+
+        # logic to decide match mapping
+        print("num players:", num_players)
+        for r, matches in enumerate(rounds[:-1], 1):  # skip last round
+            next_match1 = []
+            next_round = rounds[r]  # r+1-th round
+            next_idx = 1
+            for m, match in enumerate(matches, 1):
+                # Find the next available match in next_round
+                while next_idx <= len(next_round):
+                    n_team1, n_team2 = next_round[next_idx-1][0], next_round[next_idx-1][1]
+                    if n_team1 == "" and n_team2 == "":
+                        # Both slots empty, both current matches go to this next match
+                        next_match1.append(next_idx)
+                        next_match1.append(next_idx)
+                        next_idx += 1
+                        break
+                    elif n_team1 == "" or n_team2 == "":
+                        # Only one slot empty, assign one current match to this, next to next
+                        next_match1.append(next_idx)
+                        next_idx += 1
+                        next_match1.append(next_idx)
+                        next_idx += 1
+                        break
+                    else:
+                        next_idx += 1
+                        continue
+            next_match.append(next_match1)
+        # Initialize last round with empty next_match values
+        last_round_len = len(rounds[-1])
+        next_match.append([''] * last_round_len)
+                
+        print(next_match)
+        csv_path = 'tournament-bracket-tool/Backend/rounds/bracket.csv'
         with open(csv_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Round', 'Match', 'Team 1', 'Team 2', 'Outcome'])
+            writer.writerow(['Type','Round', 'Match', 'Team 1', 'Team 2', 'Next Match'])
             for r, matches in enumerate(rounds, 1):
                 for m, match in enumerate(matches, 1):
-                    writer.writerow([r, m, match[0], match[1], ''])
+                    
+                    writer.writerow(["single_elimination",r, m, match[0], match[1], next_match[r-1][m-1]])
+            
         print(f"Bracket CSV written to {csv_path}")
 
     def display_bracket(self):

@@ -1,129 +1,67 @@
-export function renderBracket(data, bracketDiv) {
-	bracketDiv.innerHTML = '';
-	bracketDiv.style.display = 'flex';
-	bracketDiv.style.flexDirection = 'row';
-	bracketDiv.style.alignItems = 'flex-start';
-	bracketDiv.style.gap = '80px';
-	bracketDiv.style.fontFamily = 'Poppins, Segoe UI, Arial, sans-serif';
+import { drawBracketConnections } from './drawBracketConnections.js';
 
+export function renderBracket(data, bracketDiv) {
+	// const type = data.type; // what type of tournament (uncomment and use if needed)
+	bracketDiv.innerHTML = '';
 	if (!data.rounds || data.rounds.length === 0) {
 		bracketDiv.innerText = 'No bracket data available.';
 		return;
 	}
-
-	const matchPositions = [];
-	const roundDivs = [];
-
-	data.rounds.forEach((round, rIdx) => {
-		const roundDiv = document.createElement('div');
-		roundDiv.className = 'round';
-		roundDiv.style.display = 'flex';
-		roundDiv.style.flexDirection = 'column';
-		roundDiv.style.gap = '75px';
-		roundDiv.style.position = 'relative';
-		if (rIdx < data.rounds.length - 1) {
-			roundDiv.style.marginTop = `${rIdx * 150}px`;
-		} else {
-			roundDiv.style.marginTop = `${Math.max(0, (data.rounds.length-1) * 200 - 200)}px`;
-			roundDiv.style.alignItems = 'center';
-		}
-		const roundLabel = document.createElement('div');
-		roundLabel.className = 'round-label';
-		roundLabel.innerText = `Round ${rIdx + 1}`;
-		roundLabel.style.fontWeight = 'bold';
-		roundLabel.style.marginTop = '10px';
-		roundLabel.style.fontSize = '1.2em';
-		roundLabel.style.letterSpacing = '2px';
-		roundDiv.appendChild(roundLabel);
-		matchPositions.push([]);
-		round.forEach((match, mIdx) => {
-			const matchDiv = document.createElement('div');
-			matchDiv.className = 'match';
-			matchDiv.style.display = 'flex';
-			matchDiv.style.flexDirection = 'column';
-			matchDiv.style.alignItems = 'center';
-			matchDiv.style.gap = '6px';
-			matchDiv.style.position = 'relative';
-			matchDiv.style.fontSize = '1.1em';
-			matchDiv.style.fontWeight = '500';
-			matchDiv.style.background = 'rgba(255,255,255,0.8)';
-			matchDiv.style.borderRadius = '8px';
-			matchDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.07)';
-			matchDiv.style.padding = '8px 0';
-			const team1Box = document.createElement('div');
-			team1Box.className = 'team-box';
-			team1Box.contentEditable = false;
-			team1Box.innerText = match.team1;
-			team1Box.style.fontFamily = 'inherit';
-			team1Box.style.fontWeight = '600';
-			team1Box.style.fontSize = '1em';
-			team1Box.addEventListener('mousedown', (e) => {
-				if (e.button === 0) {
-					highlightWinner(matchDiv, team1Box, team2Box, 0);
-					advanceWinner(data, rIdx, mIdx, 0, team1Box.innerText);
-					setWinner(rIdx, mIdx, 0);
-				} else if (e.button === 2) {
-					team1Box.contentEditable = true;
-					team1Box.focus();
-				}
+	const type = data.type;
+	const matchDivs = [];
+	if (type === 'group_play') {
+		// Group play: wrap matches with same group ID in a bounding box
+		const groupMap = {};
+		data.rounds.forEach((round, rIdx) => {
+			round.forEach((match, mIdx) => {
+				const groupId = match.group;
+				if (!groupMap[groupId]) groupMap[groupId] = [];
+				groupMap[groupId].push({ match, rIdx, mIdx });
 			});
-			team1Box.addEventListener('blur', () => {
-				team1Box.contentEditable = false;
-				saveEdit(rIdx, mIdx, 0, team1Box.innerText);
-			});
-			team1Box.addEventListener('contextmenu', (e) => {
-				e.preventDefault();
-			});
-			matchDiv.appendChild(team1Box);
-			const vsRow = document.createElement('div');
-			vsRow.style.display = 'flex';
-			vsRow.style.flexDirection = 'row';
-			vsRow.style.alignItems = 'center';
-			vsRow.style.justifyContent = 'center';
-			vsRow.style.gap = '6px';
-			vsRow.style.marginTop = '2px';
-			const vsSpan = document.createElement('span');
-			vsSpan.innerText = 'vs';
-			vsSpan.style.fontWeight = '400';
-			vsSpan.style.fontSize = '0.75em';
-			vsRow.appendChild(vsSpan);
-			matchDiv.appendChild(vsRow);
-			const team2Box = document.createElement('div');
-			team2Box.className = 'team-box';
-			team2Box.contentEditable = false;
-			team2Box.innerText = match.team2;
-			team2Box.style.fontFamily = 'inherit';
-			team2Box.style.fontWeight = '600';
-			team2Box.style.fontSize = '1em';
-			team2Box.addEventListener('mousedown', (e) => {
-				if (e.button === 0) {
-					highlightWinner(matchDiv, team1Box, team2Box, 1);
-					advanceWinner(data, rIdx, mIdx, 1, team2Box.innerText);
-					setWinner(rIdx, mIdx, 1);
-				} else if (e.button === 2) {
-					team2Box.contentEditable = true;
-					team2Box.focus();
-				}
-			});
-			team2Box.addEventListener('blur', () => {
-				team2Box.contentEditable = false;
-				saveEdit(rIdx, mIdx, 1, team2Box.innerText);
-			});
-			team2Box.addEventListener('contextmenu', (e) => {
-				e.preventDefault();
-			});
-			matchDiv.appendChild(team2Box);
-			if (match.winner !== undefined) {
-				highlightWinner(matchDiv, team1Box, team2Box, match.winner);
-			}
-			roundDiv.appendChild(matchDiv);
-			matchPositions[rIdx].push(matchDiv);
 		});
-		roundDivs.push(roundDiv);
-		bracketDiv.appendChild(roundDiv);
-	});
-	setTimeout(() => {
-		for (let r = 0; r < matchPositions.length - 1; r++) {
+		// For each round, render groups
+		data.rounds.forEach((round, rIdx) => {
+			const roundDiv = document.createElement('div');
+			roundDiv.className = 'round';
+			const roundLabel = document.createElement('div');
+			roundLabel.className = 'round-label';
+			roundLabel.innerText = `Round ${rIdx + 1}`;
+			roundDiv.appendChild(roundLabel);
+			matchDivs.push([]);
+			// Find all groups in this round
+			const groupsInRound = {};
+			round.forEach((match, mIdx) => {
+				if (!groupsInRound[match.group]) groupsInRound[match.group] = [];
+				groupsInRound[match.group].push({ match, mIdx });
+			});
+			Object.keys(groupsInRound).forEach(groupId => {
+				const groupBox = document.createElement('div');
+				groupBox.className = 'group-box';
+				groupsInRound[groupId].forEach(({ match, mIdx }) => {
+					const matchDiv = document.createElement('div');
+					matchDiv.className = 'match';
+					const team1Box = document.createElement('div');
+					team1Box.className = 'team-box';
+					team1Box.innerText = match.team1;
+					matchDiv.appendChild(team1Box);
+					const vsSpan = document.createElement('div');
+					vsSpan.className = 'vs-span';
+					vsSpan.innerText = 'vs';
+					matchDiv.appendChild(vsSpan);
+					const team2Box = document.createElement('div');
+					team2Box.className = 'team-box';
+					team2Box.innerText = match.team2;
+					matchDiv.appendChild(team2Box);
+					groupBox.appendChild(matchDiv);
+					matchDivs[rIdx].push(matchDiv);
+				});
+				roundDiv.appendChild(groupBox);
+			});
+			bracketDiv.appendChild(roundDiv);
+		});
+		// Draw connections from each group's round 1 matches to round 2
+		// (Assumes group IDs are consistent between rounds)
+		setTimeout(() => {
 			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			svg.style.position = 'absolute';
 			svg.style.left = '0';
@@ -133,35 +71,65 @@ export function renderBracket(data, bracketDiv) {
 			svg.style.pointerEvents = 'none';
 			svg.setAttribute('class', 'bracket-svg');
 			bracketDiv.appendChild(svg);
-			matchPositions[r].forEach((fromDiv, i) => {
-				const match = data.rounds[r][i];
-				let nextMatchIdx = match.next !== undefined && match.next !== '' ? Number(match.next) - 1 : Math.floor(i / 2);
-				if (isNaN(nextMatchIdx) || nextMatchIdx < 0) return;
-				const toDiv = matchPositions[r+1][nextMatchIdx];
-				if (!toDiv) return;
-				const fromRect = fromDiv.getBoundingClientRect();
-				const toRect = toDiv.getBoundingClientRect();
-				const bracketRect = bracketDiv.getBoundingClientRect();
-				const x1 = fromRect.right*1.03 - bracketRect.left;
-				const y1 = fromRect.top + fromRect.height/2;
-				const x2 = toRect.left - bracketRect.left;
-				const y2 = toRect.top + toRect.height/2;
-				const midX = (x1 + x2) / 2;
-				const points = [
-					[x1, y1],
-					[midX, y1],
-					[midX, y2],
-					[x2, y2]
-				];
-				const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-				polyline.setAttribute('points', points.map(p => p.join(',')).join(' '));
-				polyline.setAttribute('fill', 'none');
-				polyline.setAttribute('stroke', '#888');
-				polyline.setAttribute('stroke-width', '2');
-				svg.appendChild(polyline);
+			if (data.rounds.length > 1) {
+				const round1 = data.rounds[0];
+				const round2 = data.rounds[1];
+				const groupToMatches1 = {};
+				round1.forEach((match, idx) => {
+					if (!groupToMatches1[match.group]) groupToMatches1[match.group] = [];
+					groupToMatches1[match.group].push(idx);
+				});
+				const groupToMatches2 = {};
+				round2.forEach((match, idx) => {
+					if (!groupToMatches2[match.group]) groupToMatches2[match.group] = [];
+					groupToMatches2[match.group].push(idx);
+				});
+				Object.keys(groupToMatches1).forEach(groupId => {
+					const fromIdxs = groupToMatches1[groupId];
+					const toIdxs = groupToMatches2[groupId] || [];
+					fromIdxs.forEach((fromIdx, i) => {
+						const toIdx = toIdxs[i] !== undefined ? toIdxs[i] : toIdxs[0];
+						if (matchDivs[0][fromIdx] && matchDivs[1][toIdx]) {
+							drawBracketConnections(bracketDiv, [[matchDivs[0][fromIdx]], [matchDivs[1][toIdx]]], { rounds: [ [round1[fromIdx]], [round2[toIdx]] ] });
+						}
+					});
+				});
+			}
+		}, 100);
+	} else {
+		// ...existing code for other types...
+		const matchDivs = [];
+		data.rounds.forEach((round, rIdx) => {
+			const roundDiv = document.createElement('div');
+			roundDiv.className = 'round';
+			const roundLabel = document.createElement('div');
+			roundLabel.className = 'round-label';
+			roundLabel.innerText = `Round ${rIdx + 1}`;
+			roundDiv.appendChild(roundLabel);
+			matchDivs.push([]);
+			round.forEach((match, mIdx) => {
+				const matchDiv = document.createElement('div');
+				matchDiv.className = 'match';
+				// Top to bottom: team1, vs, team2
+				const team1Box = document.createElement('div');
+				team1Box.className = 'team-box';
+				team1Box.innerText = match.team1;
+				matchDiv.appendChild(team1Box);
+				const vsSpan = document.createElement('div');
+				vsSpan.className = 'vs-span';
+				vsSpan.innerText = 'vs';
+				matchDiv.appendChild(vsSpan);
+				const team2Box = document.createElement('div');
+				team2Box.className = 'team-box';
+				team2Box.innerText = match.team2;
+				matchDiv.appendChild(team2Box);
+				roundDiv.appendChild(matchDiv);
+				matchDivs[rIdx].push(matchDiv);
 			});
-		}
-	}, 100);
+			bracketDiv.appendChild(roundDiv);
+		});
+		drawBracketConnections(bracketDiv, matchDivs, data);
+	}
 }
 
 function highlightWinner(matchDiv, team1Box, team2Box, winnerIdx) {

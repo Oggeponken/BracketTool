@@ -10,7 +10,7 @@ app = Flask(__name__, template_folder=os.path.join('static', 'templates'), stati
 
 def get_csv_path():
     # Use relative path for cross-platform compatibility
-    return os.path.join(os.path.dirname(__file__), '..', 'Backend', 'rounds', 'single_elimination_bracket.csv')
+    return os.path.join(os.path.dirname(__file__), '..', 'Backend', 'rounds', 'bracket.csv')
 
 @app.route('/')
 def index():
@@ -49,10 +49,15 @@ def get_bracket():
     csv_path = get_csv_path()
     print(f"[DEBUG] Fetching bracket from: {csv_path}")
     rounds = {}
+    bracket_type = None
     try:
         with open(csv_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in reader:
+            first_row = None
+            for idx, row in enumerate(reader):
+                if idx == 0:
+                    first_row = row
+                    bracket_type = row.get('Type', None)
                 print(f"[DEBUG] Row: {row}")
                 r = int(row['Round'])
                 if r not in rounds:
@@ -61,12 +66,13 @@ def get_bracket():
                     'match': int(row['Match']),
                     'team1': row['Team 1'],
                     'team2': row['Team 2'],
-                    'outcome': row.get('Outcome', '')
+                    'next_match': row['Next Match']
                 }
                 rounds[r].append(match)
         rounds_list = [rounds[r] for r in sorted(rounds.keys())]
         print(f"[DEBUG] Rounds list: {rounds_list}")
-        return {'rounds': rounds_list}
+        print(f"[DEBUG] Bracket type: {bracket_type}")
+        return {'rounds': rounds_list, 'type': bracket_type}
     except Exception as e:
         print(f"[ERROR] {e}")
         return {'error': str(e)}, 500
