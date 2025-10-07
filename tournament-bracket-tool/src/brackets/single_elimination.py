@@ -81,27 +81,23 @@ class SingleElimination:
         for r, matches in enumerate(rounds[:-1], 1):  # skip last round
             next_match1 = []
             next_round = rounds[r]  # r+1-th round
-            next_idx = 1
-            for m, match in enumerate(matches, 1):
-                # Find the next available match in next_round
-                while next_idx <= len(next_round):
-                    n_team1, n_team2 = next_round[next_idx-1][0], next_round[next_idx-1][1]
-                    if n_team1 == "" and n_team2 == "":
-                        # Both slots empty, both current matches go to this next match
-                        next_match1.append(next_idx)
-                        next_match1.append(next_idx)
-                        next_idx += 1
+            # Track which slots are filled in next round
+            filled_slots = [[n_team1 != "", n_team2 != ""] for n_team1, n_team2 in next_round]
+            for m, match in enumerate(matches):
+                assigned = False
+                for idx, (slot1, slot2) in enumerate(filled_slots):
+                    if not slot1:
+                        next_match1.append(idx + 1)
+                        filled_slots[idx][0] = True
+                        assigned = True
                         break
-                    elif n_team1 == "" or n_team2 == "":
-                        # Only one slot empty, assign one current match to this, next to next
-                        next_match1.append(next_idx)
-                        next_idx += 1
-                        next_match1.append(next_idx)
-                        next_idx += 1
+                    elif not slot2:
+                        next_match1.append(idx + 1)
+                        filled_slots[idx][1] = True
+                        assigned = True
                         break
-                    else:
-                        next_idx += 1
-                        continue
+                if not assigned:
+                    next_match1.append(1)
             next_match.append(next_match1)
         # Initialize last round with empty next_match values
         last_round_len = len(rounds[-1])
