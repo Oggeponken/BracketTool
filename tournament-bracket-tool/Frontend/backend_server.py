@@ -8,6 +8,36 @@ import csv
 
 app = Flask(__name__, template_folder=os.path.join('static', 'templates'), static_folder='static')
 
+@app.route('/api/save_bracket', methods=['POST'])
+def save_bracket():
+    data = request.get_json()
+    csv_path = get_csv_path()
+    # Expecting data.rounds as list of rounds, each round is list of matches
+    if not data or 'rounds' not in data:
+        return 'Invalid data', 400
+    rounds = data['rounds']
+    # Get all fieldnames from first match
+    fieldnames = []
+    for round in rounds:
+        if round:
+            fieldnames = list(round[0].keys())
+            break
+    if not fieldnames:
+        return 'No matches to save', 400
+    # Flatten rounds to rows
+    rows = []
+    for round in rounds:
+        for match in round:
+            rows.append(match)
+    try:
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+        return ('', 204)
+    except Exception as e:
+        return f'Error saving bracket: {e}', 500
 def get_csv_path():
     # Use relative path for cross-platform compatibility
     return os.path.join(os.path.dirname(__file__), '..', 'Backend', 'rounds', 'bracket.csv')

@@ -3,10 +3,11 @@ function drawConnection(svg, fromDiv, toDiv, bracketDiv) {
     const fromRect = fromDiv.getBoundingClientRect();
     const toRect = toDiv.getBoundingClientRect();
     const bracketRect = bracketDiv.getBoundingClientRect();
-    const x1 = (fromRect.right - bracketRect.left)*1.075;
-    const y1 = fromRect.top + fromRect.height/2 //- bracketRect.top;
-    const x2 = (toRect.left - bracketRect.left)*1.075;
-    const y2 = toRect.top //+ toRect.height/2 //- bracketRect.top;
+    // Offset coordinates relative to bracketDiv
+    const x1 = fromRect.right - bracketRect.left;
+    const y1 = fromRect.top + fromRect.height/2 - bracketRect.top;
+    const x2 = toRect.left - bracketRect.left;
+    const y2 = toRect.top + toRect.height/2 - bracketRect.top;
     const midX = (x1 + x2) / 2;
     const points = [
         [x1, y1],
