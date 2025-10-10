@@ -92,13 +92,22 @@ def get_bracket():
                 r = int(row['Round'])
                 if r not in rounds:
                     rounds[r] = []
-                match = {
+                
+                # Create match object with ALL columns from CSV
+                match = {}
+                for key, value in row.items():
+                    match[key] = value
+                
+                # Also include the original fields for compatibility
+                match.update({
                     'match': int(row['Match']),
                     'team1': row['Team 1'],
                     'team2': row['Team 2'],
                     'next_match': row['Next Match']
-                }
+                })
+                
                 rounds[r].append(match)
+                
         rounds_list = [rounds[r] for r in sorted(rounds.keys())]
         print(f"[DEBUG] Rounds list: {rounds_list}")
         print(f"[DEBUG] Bracket type: {bracket_type}")

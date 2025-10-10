@@ -1,4 +1,4 @@
-bracket_type=single_elimination
-team_size=2
-group_size=4
-names=Alfred,Albin,Oskar,Sven,Thomas,Jonathan,Clara,Oliver,Olloniver,Amadeus,God Emperor,Nellie,Toresten, Josef,Lalla, Sven,fred,Leo,alle
+bracket_type=group_play
+team_size=1
+group_size=3
+names=oskar,sven,clara,albin,alfred,jonathan,oliver,bögbias

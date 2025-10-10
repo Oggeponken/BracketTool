@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
     <title>Create New Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='new_settings.css') }}">
@@ -9,25 +8,32 @@
 <body>
     <div class="background-blur"></div>
     <div class="bracket-overlay">
-        <h1>Create New Bracket Settings</h1>
-        <form id="settingsForm">
-            <label for="bracketType">Bracket Type:</label>
-            <select id="bracketType" name="bracketType">
-                <option value="single_elimination">Single Elimination</option>
-                <option value="group_play">Group Play</option>
-                <option value="double_elimination">Double Elimination</option>
-                <option value="round_robin">Round Robin</option>
-            </select><br><br>
-            <label for="teamSize">Team Size:</label>
-            <input type="number" id="teamSize" name="teamSize" min="1" value="1"><br><br>
-            <label for="groupSize">Group Size:</label>
-            <input type="number" id="groupSize" name="groupSize" min="1" value="4"><br><br>
-            <label for="players">Players:</label>
+        <div class="form-column">
+            <h1>Create New Bracket Settings</h1>
+            <form id="settingsForm">
+                <label for="bracketType">Bracket Type:</label>
+                <select id="bracketType" name="bracketType">
+                    <option value="single_elimination">Single Elimination</option>
+                    <option value="group_play">Group Play</option>
+                    <option value="double_elimination">Double Elimination</option>
+                    <option value="round_robin">Round Robin</option>
+                </select><br><br>
+                <label for="teamSize">Team Size:</label>
+                <input type="number" id="teamSize" name="teamSize" min="1" value="1"><br><br>
+                <label for="groupSize">Group Size:</label>
+                <input type="number" id="groupSize" name="groupSize" min="1" value="4"><br><br>
+                <label for="players">Players:</label>
+                
+                <input type="text" id="playerInput" placeholder="Enter player name">
+                <button type="button" id="addPlayerBtn">Add Player</button><br><br>
+                <button type="button" id="saveBtn">Save & Generate Bracket</button>
+            </form>
+        </div>
+        
+        <div class="players-column">
+            <h2>Players</h2>
             <ul id="playersList"></ul>
-            <input type="text" id="playerInput" placeholder="Enter player name">
-            <button type="button" id="addPlayerBtn">Add Player</button><br><br>
-            <button type="button" id="saveBtn">Save & Generate Bracket</button>
-        </form>
+        </div>
     </div>
     <script>
     const players = [];
@@ -39,15 +45,26 @@
             document.getElementById('playerInput').value = '';
         }
     };
+    
     function updatePlayersList() {
         const ul = document.getElementById('playersList');
         ul.innerHTML = '';
         players.forEach((p, i) => {
             const li = document.createElement('li');
             li.textContent = p;
+            li.setAttribute('data-index', i);
+            
+            // Add double-click event to remove player
+            li.ondblclick = function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                players.splice(index, 1);
+                updatePlayersList();
+            };
+            
             ul.appendChild(li);
         });
     }
+    
     document.getElementById('saveBtn').onclick = async function() {
         const bracketType = document.getElementById('bracketType').value;
         const teamSize = document.getElementById('teamSize').value;

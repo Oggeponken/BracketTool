@@ -24,6 +24,9 @@ fetchBracket().then(data => {
 	} else if (data.type === 'group_play') {
 		import('./gameplays/group_play.js').then(mod => {
 			mod.renderGroupPlay(data, bracketDiv);
+			console.log('Full data:', data);
+			console.log('Data type:', typeof data);
+			console.log('Data keys:', Object.keys(data));
 		});
 	} else if (data.type === 'round_robin') {
 		import('./gameplays/round_robin.js').then(mod => {

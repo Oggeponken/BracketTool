@@ -1,5 +1,6 @@
 import csv
 import math
+from seeding.next_match import next_match_mapping
 
 class SingleElimination:
     def __init__(self, participants,seed,team_size):
@@ -77,31 +78,8 @@ class SingleElimination:
 
 
         # logic to decide match mapping
-        print("num players:", num_players)
-        for r, matches in enumerate(rounds[:-1], 1):  # skip last round
-            next_match1 = []
-            next_round = rounds[r]  # r+1-th round
-            # Track which slots are filled in next round
-            filled_slots = [[n_team1 != "", n_team2 != ""] for n_team1, n_team2 in next_round]
-            for m, match in enumerate(matches):
-                assigned = False
-                for idx, (slot1, slot2) in enumerate(filled_slots):
-                    if not slot1:
-                        next_match1.append(idx + 1)
-                        filled_slots[idx][0] = True
-                        assigned = True
-                        break
-                    elif not slot2:
-                        next_match1.append(idx + 1)
-                        filled_slots[idx][1] = True
-                        assigned = True
-                        break
-                if not assigned:
-                    next_match1.append(1)
-            next_match.append(next_match1)
-        # Initialize last round with empty next_match values
-        last_round_len = len(rounds[-1])
-        next_match.append([''] * last_round_len)
+        next_match = next_match_mapping(rounds)
+       
                 
         print(next_match)
         csv_path = 'tournament-bracket-tool/Backend/rounds/bracket.csv'
