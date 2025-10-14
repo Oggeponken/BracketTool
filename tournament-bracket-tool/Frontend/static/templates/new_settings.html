@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <title>Create New Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='new_settings.css') }}">
+    <style>
+        /* Additional CSS for loading animation */
+        .loading-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading-animation {
+            display: none;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .loading-animation.active {
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <div class="background-blur"></div>
@@ -26,7 +44,11 @@
                 
                 <input type="text" id="playerInput" placeholder="Enter player name">
                 <button type="button" id="addPlayerBtn">Add Player</button><br><br>
-                <button type="button" id="saveBtn">Save & Generate Bracket</button>
+                
+                <div class="loading-container">
+                    <button type="button" id="saveBtn">Save & Generate Bracket</button>
+                    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="loading-animation" id="loadingAnimation">
+                </div>
             </form>
         </div>
         
@@ -37,15 +59,31 @@
     </div>
     <script>
     const players = [];
+
+    // Add player with button click
     document.getElementById('addPlayerBtn').onclick = function() {
+        addPlayer();
+    };
+
+    // Add player with Enter key
+    document.getElementById('playerInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            addPlayer();
+        }
+    });
+
+    function addPlayer() {
         const name = document.getElementById('playerInput').value.trim();
         if (name) {
             players.push(name);
             updatePlayersList();
             document.getElementById('playerInput').value = '';
+            // Focus back to input for quick entry
+            document.getElementById('playerInput').focus();
         }
-    };
-    
+    }
+
     function updatePlayersList() {
         const ul = document.getElementById('playersList');
         ul.innerHTML = '';
@@ -64,26 +102,43 @@
             ul.appendChild(li);
         });
     }
-    
+
     document.getElementById('saveBtn').onclick = async function() {
         const bracketType = document.getElementById('bracketType').value;
         const teamSize = document.getElementById('teamSize').value;
         const groupSize = document.getElementById('groupSize').value;
-        // Send settings to backend to save settings.txt and generate bracket
-        const response = await fetch('/save_settings', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                bracketType,
-                teamSize,
-                groupSize,
-                players
-            })
-        });
-        if (response.ok) {
-            window.location.href = '/view_bracket';
-        } else {
+        
+        // Show loading animation
+        const loadingAnimation = document.getElementById('loadingAnimation');
+        loadingAnimation.classList.add('active');
+        
+        // Disable button to prevent multiple clicks
+        this.disabled = true;
+        
+        try {
+            // Send settings to backend to save settings.txt and generate bracket
+            const response = await fetch('/save_settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    bracketType,
+                    teamSize,
+                    groupSize,
+                    players
+                })
+            });
+            
+            if (response.ok) {
+                window.location.href = '/view_bracket';
+            } else {
+                alert('Error saving settings or generating bracket.');
+            }
+        } catch (error) {
             alert('Error saving settings or generating bracket.');
+        } finally {
+            // Hide loading animation and re-enable button
+            loadingAnimation.classList.remove('active');
+            this.disabled = false;
         }
     };
     </script>

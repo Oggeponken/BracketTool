@@ -1,0 +1,77 @@
+[33mcommit cb41f61f609a52a975e57f3cbdb6ad4efde73aac[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mbracket_generation[m[33m)[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Tue Oct 14 01:27:26 2025 -0700
+
+    did changes dont remember
+
+[33mcommit d4ddcbf66f8385dc9b857dde8f89ebf052d311ce[m[33m ([m[1;32mnew_settings[m[33m)[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Thu Oct 9 23:11:29 2025 -0700
+
+    fixed group play in UI and new_settings
+
+[33mcommit 7992ae9538f147bc499675abfab13ab016739410[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Tue Oct 7 03:47:43 2025 -0700
+
+    fixes to mapping rounds logic
+
+[33mcommit 91515d9c6b114ff4f4a973cddae5e064aae2e719[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Tue Oct 7 02:41:16 2025 -0700
+
+    Fixed bracket javascripts
+
+[33mcommit 7270f3f2141184cecb4ccb619151fbe7cd69393d[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Tue Oct 7 00:32:43 2025 -0700
+
+    I did some big overhall of single_elimination logic to fix mapping in .js visualization
+
+[33mcommit f0d38eb153c7760be20b137205e5a7e43a50ac62[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Mon Oct 6 05:09:28 2025 -0700
+
+    Fixed logic in single_elimination.py
+
+[33mcommit c99fb7e01cb1ff4d11f938c9da13eeb7bc96ceb3[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Fri Oct 3 08:27:29 2025 -0700
+
+    Updated frontend to add several more pages, works well
+
+[33mcommit 0086f38216af32d757305cb106703e0d33d26a6a[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Fri Oct 3 04:17:31 2025 -0700
+
+    basic functionality is in place for UI
+
+[33mcommit 1dd1c30a06c9aa473975da462f598eee6b639678[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Fri Oct 3 03:47:55 2025 -0700
+
+    logic changees
+
+[33mcommit 510c8bfb20d0e5d5e5a46935fa37ffdef8071e83[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Thu Oct 2 05:09:13 2025 -0700
+
+    made UI
+
+[33mcommit 2ba2bb1e70c6d02834c6e2f7a4ef5cc31afa9f1e[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Thu Oct 2 02:49:38 2025 -0700
+
+    big changes
+
+[33mcommit 6f5b12aa65bad742c814597ec5954dd9da72fb9c[m[33m ([m[1;32mexploration[m[33m)[m
+Author: HAMIDI Oskar <oskar.hamidi@amaris.com>
+Date:   Wed Oct 1 03:36:57 2025 -0700
+
+    Initial commit
+
+[33mcommit 2b18bd881edf540847ac4520b9a27e23c48b6461[m
+Author: Oggeponken <oskarhamidi.1@gmail.com>
+Date:   Wed Oct 1 02:14:13 2025 -0700
+
+    Initial commit
