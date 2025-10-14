@@ -1,4 +1,4 @@
 bracket_type=group_play
-team_size=1
+team_size=3
 group_size=3
-names=oskar,sven,clara,albin,alfred,jonathan,oliver,bögbias
+names=oskar,Albin,Anton,Tobias 1,Tobias 2,Shahro,Clara,sara,Amanda
