@@ -1,4 +1,4 @@
-bracket_type=group_play
-team_size=3
-group_size=3
-names=oskar,Albin,Anton,Tobias 1,Tobias 2,Shahro,Clara,sara,Amanda
+bracket_type=round_robin
+team_size=4
+group_size=4
+names=asdas,dasdas,dasdas,dasdas,dasd,asd,asd,as,ds,d,as,das,d,asd,as,das,d,as
