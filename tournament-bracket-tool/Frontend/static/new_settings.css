@@ -205,3 +205,22 @@ ul {
     gap: 16px;
     width: 100%;
 }
+
+
+/* Loading animation styles */
+.loading-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+#loadingAnimation {
+    display: none;
+    width: 75px;
+    height: 75px;
+}
+
+#loadingAnimation.active {
+    display: inline-block !important;
+}
