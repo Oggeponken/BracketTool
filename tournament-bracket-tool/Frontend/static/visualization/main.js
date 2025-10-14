@@ -29,6 +29,9 @@ fetchBracket().then(data => {
 	} else if (data.type === 'round_robin') {
 		import('./gameplays/round_robin.js').then(mod => {
 			mod.renderRoundRobin(data, bracketDiv);
+		
+			
+
 		});
 	} else {
 		bracketDiv.innerText = 'Unknown bracket type.';

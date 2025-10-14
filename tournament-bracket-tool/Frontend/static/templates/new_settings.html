@@ -21,6 +21,46 @@
         .loading-animation.active {
             display: inline-block;
         }
+        
+        /* Checkbox styling */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-checkbox.checked {
+            background-color: #3498db;
+        }
+        
+        .custom-checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+        }
+        
+        .checkbox-label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        #losersBracket {
+            display: none; /* Hide the actual checkbox */
+        }
     </style>
 </head>
 <body>
@@ -40,8 +80,14 @@
                 <input type="number" id="teamSize" name="teamSize" min="1" value="1"><br><br>
                 <label for="groupSize">Group Size:</label>
                 <input type="number" id="groupSize" name="groupSize" min="1" value="4"><br><br>
-                <checkbox id="LosersBracket" name="LosersBracket">
-                <label for="LosersBracket">Include Losers Bracket</label><br><br>
+                
+                <!-- Fixed checkbox with custom styling -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="losersBracket" name="losersBracket">
+                    <div class="custom-checkbox" id="customCheckbox"></div>
+                    <label for="losersBracket" class="checkbox-label">Include Losers Bracket</label>
+                </div>
+                
                 <label for="players">Players:</label>
                 
                 <input type="text" id="playerInput" placeholder="Enter player name">
@@ -61,6 +107,27 @@
     </div>
     <script>
     const players = [];
+    let losersBracket = false;
+
+    // Initialize checkbox functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('losersBracket');
+        const customCheckbox = document.getElementById('customCheckbox');
+        
+        // Toggle checkbox when custom checkbox is clicked
+        customCheckbox.addEventListener('click', function() {
+            checkbox.checked = !checkbox.checked;
+            losersBracket = checkbox.checked;
+            customCheckbox.classList.toggle('checked', checkbox.checked);
+        });
+        
+        // Also allow clicking the label
+        document.querySelector('.checkbox-label').addEventListener('click', function() {
+            checkbox.checked = !checkbox.checked;
+            losersBracket = checkbox.checked;
+            customCheckbox.classList.toggle('checked', checkbox.checked);
+        });
+    });
 
     // Add player with button click
     document.getElementById('addPlayerBtn').onclick = function() {
@@ -109,6 +176,7 @@
         const bracketType = document.getElementById('bracketType').value;
         const teamSize = document.getElementById('teamSize').value;
         const groupSize = document.getElementById('groupSize').value;
+        const losersBracket = document.getElementById('losersBracket').checked;
         
         // Show loading animation
         const loadingAnimation = document.getElementById('loadingAnimation');
@@ -126,6 +194,7 @@
                     bracketType,
                     teamSize,
                     groupSize,
+                    losersBracket,
                     players
                 })
             });

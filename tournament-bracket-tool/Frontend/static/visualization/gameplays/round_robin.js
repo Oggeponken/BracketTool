@@ -11,177 +11,241 @@ export function renderRoundRobin(data, bracketDiv) {
     // Configurable spacing
     const xGap = 350; // horizontal gap between rounds
     const yGap = 200;  // minimum vertical gap between matches
-    const groupYGap = 50; // extra vertical gap between groups
+    const losersYGap = 100; // vertical gap between main and losers bracket
     const baseY = 40; // top margin
-    const groupColors = ['#4f8cff', '#ff6f61', '#ffa500', '#32cd32', '#ff69b4', '#8a2be2']; // Colors for different groups
     let maxWidth = 0;
     let maxHeight = 0;
     
+    // Create arrays to track match divs by bracket type
+    const mainMatchDivs = [];
+    const losersMatchDivs = [];
+    
+    // First pass: calculate dimensions and organize matches
     data.rounds.forEach((round, rIdx) => {
-        const roundDiv = document.createElement('div');
-        roundDiv.className = 'round';
-        roundDiv.style.position = 'absolute';
-        roundDiv.style.left = `${rIdx * xGap}px`;
-        roundDiv.style.top = '0';
+        mainMatchDivs[rIdx] = [];
+        losersMatchDivs[rIdx] = [];
         
-        const roundLabel = document.createElement('div');
-        roundLabel.className = 'round-label';
-        roundLabel.innerText = `Round ${rIdx + 1}`;
-        roundDiv.appendChild(roundLabel);
-        
-        matchDivs.push([]);
-        const numMatches = round.length;
-        
-        // Pyramid layout: calculate vertical position for each match
-        const totalHeight = Math.pow(2, data.rounds.length - 1) * yGap;
-        
-        // For round 1: group matches by Group and create bounding boxes
-        if (rIdx === 0) {
-            // Group matches by their Group value
-            const groups = {};
-            round.forEach((match, mIdx) => {
-                const groupId = match.Group || 'ungrouped';
-                if (!groups[groupId]) {
-                    groups[groupId] = [];
-                }
-                groups[groupId].push({ match, mIdx });
-            });
-            
-            let currentY = baseY;
-            const groupIds = Object.keys(groups);
-            
-            // Create group containers and matches
-            groupIds.forEach((groupId, groupIndex) => {
-                const groupMatches = groups[groupId];
-                
-                // Create group bounding box for round 1
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'group-container';
-                groupDiv.style.position = 'absolute';
-                groupDiv.style.left = '0';
-                groupDiv.style.top = `${currentY}px`;
-                groupDiv.style.border = '2px solid ' + groupColors[groupIndex % groupColors.length];
-                groupDiv.style.borderRadius = '8px';
-                groupDiv.style.padding = '10px';
-                groupDiv.style.backgroundColor = 'rgba(79, 140, 255, 0.05)';
-                
-                // Add group label
-                const groupLabel = document.createElement('div');
-                groupLabel.className = 'group-label';
-                groupLabel.innerText = `Group ${groupId}`;
-                groupLabel.style.fontWeight = 'bold';
-                groupLabel.style.marginBottom = '10px';
-                groupLabel.style.color = groupColors[groupIndex % groupColors.length];
-                groupDiv.appendChild(groupLabel);
-                
-                // Create matches within this group
-                groupMatches.forEach(({ match, mIdx }, matchIndexInGroup) => {
-                    const matchDiv = createMatchElement(match, rIdx, mIdx, matchIndexInGroup, groupMatches.length, currentY);
-                    
-                    // Add interaction handlers
-                    addMatchInteractions(matchDiv, data, rIdx, mIdx, matchDivs, saveBracketData);
-                    
-                    groupDiv.appendChild(matchDiv);
-                    matchDivs[rIdx].push(matchDiv);
-                });
-                
-                roundDiv.appendChild(groupDiv);
-                currentY += (groupMatches.length * yGap) + groupYGap;
-            });
-            
-            maxHeight = Math.max(maxHeight, currentY);
-        } else {
-            // For subsequent rounds: single elimination style (no groups)
-            for (let mIdx = 0; mIdx < numMatches; mIdx++) {
-                const match = round[mIdx];
-                const matchDiv = document.createElement('div');
-                const matchLabel = document.createElement('div');
-                matchLabel.className = 'match-label';
-                
-                // Correct logic for labeling rounds
-                if (rIdx === data.rounds.length - 1) {
-                    matchLabel.innerText = `Final`;
-                } else if (rIdx === data.rounds.length - 2) {
-                    matchLabel.innerText = `Semi-Final ${mIdx + 1}`;
-                } else {
-                    matchLabel.innerText = `Match ${mIdx + 1}`;
-                }
-                matchDiv.appendChild(matchLabel);
-                
-                matchDiv.className = 'match';
-                matchDiv.style.position = 'absolute';
-                const matchHeight = totalHeight / numMatches;
-                const y = baseY + mIdx * matchHeight + (matchHeight - yGap) / 2;
-                matchDiv.style.top = `${y}px`;
-                matchDiv.style.left = '0';
-                matchDiv.style.width = '200px';
-                matchDiv.style.border = '1px solid #ccc';
-                
-                const team1Box = document.createElement('div');
-                team1Box.className = 'team-box';
-                team1Box.innerText = match.team1;
-                matchDiv.appendChild(team1Box);
-                
-                const vsSpan = document.createElement('div');
-                vsSpan.className = 'vs-span';
-                vsSpan.innerText = 'vs';
-                matchDiv.appendChild(vsSpan);
-                
-                const team2Box = document.createElement('div');
-                team2Box.className = 'team-box';
-                team2Box.innerText = match.team2;
-                matchDiv.appendChild(team2Box);
-
-                // Add interaction handlers
-                addMatchInteractions(matchDiv, data, rIdx, mIdx, matchDivs, saveBracketData);
-                
-                roundDiv.appendChild(matchDiv);
-                matchDivs[rIdx].push(matchDiv);
-                
-                // Track max height
-                if (y + yGap > maxHeight) maxHeight = y + yGap;
+        round.forEach((match, mIdx) => {
+            if (match.bracket === 'loser' || match.bracket === 'losers') {
+                losersMatchDivs[rIdx].push(null); // placeholder
+            } else {
+                mainMatchDivs[rIdx].push(null); // placeholder
             }
-        }
-        
-        bracketDiv.appendChild(roundDiv);
-        // Track max width
-        if ((rIdx + 1) * xGap > maxWidth) maxWidth = (rIdx + 1) * xGap;
+        });
     });
     
-    // Set bounding box size to cover the entire bracket
+    // Render main bracket
+    const mainBracketDiv = document.createElement('div');
+    mainBracketDiv.className = 'bracket-container main-bracket';
+    mainBracketDiv.style.position = 'absolute';
+    mainBracketDiv.style.top = '0';
+    mainBracketDiv.style.left = '0';
+    
+    const mainLabel = document.createElement('div');
+    mainLabel.className = 'bracket-label';
+    mainLabel.innerText = 'MAIN BRACKET';
+    mainLabel.style.fontWeight = 'bold';
+    mainLabel.style.fontSize = '18px';
+    mainLabel.style.color = '#4f8cff';
+    mainLabel.style.marginBottom = '20px';
+    mainLabel.style.textAlign = 'center';
+    mainBracketDiv.appendChild(mainLabel);
+    
+    const mainContentDiv = document.createElement('div');
+    mainContentDiv.className = 'bracket-content';
+    mainContentDiv.style.position = 'relative';
+    
+    const mainDimensions = renderBracketSection(data, mainContentDiv, 'main', baseY, mainMatchDivs);
+    mainBracketDiv.appendChild(mainContentDiv);
+    
+    // Position and style main bracket container
+    mainBracketDiv.style.width = `${mainDimensions.width}px`;
+    mainBracketDiv.style.height = `${mainDimensions.height}px`;
+    mainBracketDiv.style.border = '3px solid #4f8cff';
+    mainBracketDiv.style.borderRadius = '10px';
+    mainBracketDiv.style.padding = '20px';
+    mainBracketDiv.style.backgroundColor = 'rgba(79, 140, 255, 0.1)';
+    mainBracketDiv.style.boxSizing = 'border-box';
+    
+    // Render losers bracket
+    const losersBracketDiv = document.createElement('div');
+    losersBracketDiv.className = 'bracket-container losers-bracket';
+    losersBracketDiv.style.position = 'absolute';
+    losersBracketDiv.style.top = `${mainDimensions.height + losersYGap}px`;
+    losersBracketDiv.style.left = '0';
+    
+    const losersLabel = document.createElement('div');
+    losersLabel.className = 'bracket-label';
+    losersLabel.innerText = 'LOSERS BRACKET';
+    losersLabel.style.fontWeight = 'bold';
+    losersLabel.style.fontSize = '18px';
+    losersLabel.style.color = '#ff4444';
+    losersLabel.style.marginBottom = '20px';
+    losersLabel.style.textAlign = 'center';
+    losersBracketDiv.appendChild(losersLabel);
+    
+    const losersContentDiv = document.createElement('div');
+    losersContentDiv.className = 'bracket-content';
+    losersContentDiv.style.position = 'relative';
+    
+    const losersDimensions = renderBracketSection(data, losersContentDiv, 'loser', baseY, losersMatchDivs);
+    losersBracketDiv.appendChild(losersContentDiv);
+    
+    // Position and style losers bracket container
+    losersBracketDiv.style.width = `${losersDimensions.width}px`;
+    losersBracketDiv.style.height = `${losersDimensions.height}px`;
+    losersBracketDiv.style.border = '3px solid #ff4444';
+    losersBracketDiv.style.borderRadius = '10px';
+    losersBracketDiv.style.padding = '20px';
+    losersBracketDiv.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
+    losersBracketDiv.style.boxSizing = 'border-box';
+    
+    // Add both brackets to main container
+    bracketDiv.appendChild(mainBracketDiv);
+    bracketDiv.appendChild(losersBracketDiv);
+    
+    // Calculate overall dimensions
+    maxWidth = Math.max(mainDimensions.width, losersDimensions.width);
+    maxHeight = mainDimensions.height + losersYGap + losersDimensions.height;
+    
     bracketDiv.style.position = 'relative';
     bracketDiv.style.width = `${maxWidth}px`;
     bracketDiv.style.height = `${maxHeight}px`;
+    
+    // Combine match divs for connection drawing (main first, then losers)
+    data.rounds.forEach((round, rIdx) => {
+        matchDivs[rIdx] = [...mainMatchDivs[rIdx], ...losersMatchDivs[rIdx]].filter(div => div !== null);
+    });
+    
+    // Draw connections after all matches are rendered
     drawBracketConnections(bracketDiv, matchDivs, data);
 
+    function renderBracketSection(data, container, bracketType, startY, targetMatchDivs) {
+        let currentMaxY = startY;
+        let currentMaxX = 0;
+        
+        data.rounds.forEach((round, rIdx) => {
+            const roundDiv = document.createElement('div');
+            roundDiv.className = 'round';
+            roundDiv.style.position = 'absolute';
+            roundDiv.style.left = `${rIdx * xGap}px`;
+            roundDiv.style.top = '0';
+            
+            const roundLabel = document.createElement('div');
+            roundLabel.className = 'round-label';
+            roundLabel.innerText = `Round ${rIdx + 1}`;
+            roundDiv.appendChild(roundLabel);
+            
+            // Filter matches for this bracket type
+            const bracketMatches = round.filter(match => 
+                (bracketType === 'loser') ? 
+                (match.bracket === 'loser' || match.bracket === 'losers') : 
+                (match.bracket !== 'loser' && match.bracket !== 'losers')
+            );
+            
+            if (bracketMatches.length === 0) {
+                // Create empty placeholder to maintain round structure
+                const emptyDiv = document.createElement('div');
+                emptyDiv.style.width = '200px';
+                emptyDiv.style.height = '1px';
+                roundDiv.appendChild(emptyDiv);
+                container.appendChild(roundDiv);
+                currentMaxX = Math.max(currentMaxX, (rIdx + 1) * xGap);
+                return;
+            }
+            
+            const numMatches = bracketMatches.length;
+            const totalHeight = Math.max(numMatches * yGap, Math.pow(2, data.rounds.length - 1) * yGap);
+            
+            bracketMatches.forEach((match, matchIndexInBracket) => {
+                // Find the original mIdx in the round
+                const originalMIdx = round.findIndex(m => m === match);
+                
+                const matchDiv = createMatchElement(match, rIdx, originalMIdx, bracketType);
+                matchDiv.style.position = 'absolute';
+                
+                const matchHeight = totalHeight / numMatches;
+                const y = startY + matchIndexInBracket * matchHeight + (matchHeight - yGap) / 2;
+                matchDiv.style.top = `${y}px`;
+                matchDiv.style.left = '0';
+                
+                addMatchInteractions(matchDiv, data, rIdx, originalMIdx, targetMatchDivs, saveBracketData);
+                
+                roundDiv.appendChild(matchDiv);
+                
+                // Store in the correct position in targetMatchDivs
+                if (targetMatchDivs[rIdx] && originalMIdx < targetMatchDivs[rIdx].length) {
+                    targetMatchDivs[rIdx][originalMIdx] = matchDiv;
+                }
+                
+                currentMaxY = Math.max(currentMaxY, y + yGap);
+            });
+            
+            container.appendChild(roundDiv);
+            currentMaxX = Math.max(currentMaxX, (rIdx + 1) * xGap);
+        });
+        
+        // Set container dimensions
+        container.style.width = `${currentMaxX}px`;
+        container.style.height = `${currentMaxY}px`;
+        
+        return {
+            width: currentMaxX + 40, // Add padding
+            height: currentMaxY + 40  // Add padding
+        };
+    }
+    
     // Helper function to create match elements
-    function createMatchElement(match, rIdx, mIdx, matchIndexInGroup, totalMatchesInGroup, groupTop) {
+    function createMatchElement(match, rIdx, mIdx, bracketType) {
         const matchDiv = document.createElement('div');
         const matchLabel = document.createElement('div');
         matchLabel.className = 'match-label';
-        matchLabel.innerText = `Match ${mIdx + 1}`;
+        
+        // Different labeling for losers bracket
+        if (bracketType === 'loser') {
+            matchLabel.innerText = `Match ${mIdx + 1}`;
+        } else {
+            if (rIdx === data.rounds.length - 1) {
+                matchLabel.innerText = `Final`;
+            } else if (rIdx === data.rounds.length - 2) {
+                matchLabel.innerText = `Semi-Final ${mIdx + 1}`;
+            } else {
+                matchLabel.innerText = `Match ${mIdx + 1}`;
+            }
+        }
+        
         matchDiv.appendChild(matchLabel);
         
         matchDiv.className = 'match';
         matchDiv.style.position = 'relative';
-        matchDiv.style.marginBottom = '10px';
         matchDiv.style.width = '200px';
         matchDiv.style.border = '1px solid #ccc';
         matchDiv.style.backgroundColor = 'white';
+        matchDiv.style.padding = '10px';
+        matchDiv.style.borderRadius = '5px';
         
         const team1Box = document.createElement('div');
         team1Box.className = 'team-box';
         team1Box.innerText = match.team1;
+        team1Box.style.padding = '5px';
+        team1Box.style.margin = '2px 0';
+        team1Box.style.backgroundColor = '#f8f9fa';
         matchDiv.appendChild(team1Box);
         
         const vsSpan = document.createElement('div');
         vsSpan.className = 'vs-span';
         vsSpan.innerText = 'vs';
+        vsSpan.style.textAlign = 'center';
+        vsSpan.style.margin = '5px 0';
+        vsSpan.style.fontWeight = 'bold';
         matchDiv.appendChild(vsSpan);
         
         const team2Box = document.createElement('div');
         team2Box.className = 'team-box';
         team2Box.innerText = match.team2;
+        team2Box.style.padding = '5px';
+        team2Box.style.margin = '2px 0';
+        team2Box.style.backgroundColor = '#f8f9fa';
         matchDiv.appendChild(team2Box);
         
         return matchDiv;

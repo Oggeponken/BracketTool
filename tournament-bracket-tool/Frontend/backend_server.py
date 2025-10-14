@@ -61,6 +61,7 @@ def save_settings():
     with open(settings_path, 'w') as f:
         f.write(f"bracket_type={data.get('bracketType','single_elimination')}\n")
         f.write(f"team_size={data.get('teamSize','1')}\n")
+        f.write(f"losers_bracket={data.get('losersBracket','false')}\n") 
         f.write(f"group_size={data.get('groupSize','4')}\n")
         f.write(f"names={','.join(data.get('players', []))}\n")
     script_path = os.path.join(os.path.dirname(__file__), '..', 'Backend', 'scripts', 'Bracket_Generation.py')
@@ -73,7 +74,6 @@ def save_settings():
 @app.route('/load_csv', methods=['POST'])
 def load_csv():
     return render_template('bracket.html')
-
 @app.route('/api/bracket', methods=['GET'])
 def get_bracket():
     csv_path = get_csv_path()
@@ -103,7 +103,8 @@ def get_bracket():
                     'match': int(row['Match']),
                     'team1': row['Team 1'],
                     'team2': row['Team 2'],
-                    'next_match': row['Next Match']
+                    'next_match': row['Next Match'],
+                    'bracket': row.get('Bracket', 'main')  # Add this line to include bracket column
                 })
                 
                 rounds[r].append(match)
